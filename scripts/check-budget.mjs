@@ -1,42 +1,46 @@
 #!/usr/bin/env node
 /**
- * Gate 2 of 3. The performance budget is a build failure, not an intention.
- *
- * The rule that keeps a 3D site usable: the document route must paint without
- * downloading the 3D engine. If three/drei leak into the entry chunk, this
- * fails and someone has to look at why.
+ * Gate 2 of 3. Measured GZIPPED, because that is what a visitor on a train
+ * actually downloads. Raw byte counts flatter nothing and mislead everything.
  */
-import { readdirSync, statSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 const ASSETS = 'dist/assets'
 const KB = 1024
 
 const BUDGET = {
-  entryJs: 180 * KB,   // document route, gzipped-ish raw ceiling
-  worldJs: 900 * KB,   // three + drei chunk, loaded only on demand
-  css: 40 * KB,
+  entry: 60 * KB,   // document route — must stay small
+  world: 320 * KB,  // three + drei, loaded on demand only
+  css: 15 * KB,
 }
 
-const files = readdirSync(ASSETS).map((f) => ({ name: f, size: statSync(join(ASSETS, f)).size }))
+const gz = (file) => gzipSync(readFileSync(join(ASSETS, file)), { level: 9 }).length
 
-const entry = files.filter((f) => f.name.endsWith('.js') && !f.name.includes('three'))
-const world = files.filter((f) => f.name.endsWith('.js') && f.name.includes('three'))
-const css = files.filter((f) => f.name.endsWith('.css'))
+const files = readdirSync(ASSETS)
+const js = files.filter((f) => f.endsWith('.js'))
+const isWorld = (f) => f.includes('three')
 
-const sum = (a) => a.reduce((t, f) => t + f.size, 0)
+const groups = {
+  entry: js.filter((f) => !isWorld(f)),
+  world: js.filter(isWorld),
+  css: files.filter((f) => f.endsWith('.css')),
+}
+
 const fail = []
+console.log('Performance budget (gzipped):')
 
-const check = (label, bytes, limit) => {
+for (const [name, list] of Object.entries(groups)) {
+  const bytes = list.reduce((t, f) => t + gz(f), 0)
+  const limit = BUDGET[name]
   const pct = Math.round((bytes / limit) * 100)
-  console.log(`  ${label.padEnd(10)} ${(bytes / KB).toFixed(0).padStart(5)} KB / ${(limit / KB).toFixed(0)} KB  (${pct}%)`)
-  if (bytes > limit) fail.push(`${label} over budget by ${((bytes - limit) / KB).toFixed(0)} KB`)
+  const flag = bytes > limit ? 'FAIL' : 'ok'
+  console.log(
+    `  ${name.padEnd(6)} ${(bytes / KB).toFixed(1).padStart(7)} KB / ${(limit / KB).toFixed(0).padStart(3)} KB  ${String(pct).padStart(3)}%  ${flag}`,
+  )
+  if (bytes > limit) fail.push(`${name} over by ${((bytes - limit) / KB).toFixed(1)} KB gzipped`)
 }
-
-console.log('Performance budget:')
-check('entry js', sum(entry), BUDGET.entryJs)
-check('world js', sum(world), BUDGET.worldJs)
-check('css', sum(css), BUDGET.css)
 
 if (fail.length) {
   console.error('\nBudget exceeded:\n' + fail.map((f) => '  - ' + f).join('\n'))
