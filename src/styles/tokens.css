@@ -1,0 +1,57 @@
+/* ============================================================
+   Horizon Q design tokens
+
+   Palette is derived from emission spectra, not picked. Each pillar is a real
+   spectral line and the five are ordered by wavelength everywhere they appear.
+   Ground is deep blue-black rather than pure black: an observing site at night,
+   not a void.
+   ============================================================ */
+
+:root {
+  /* Ground */
+  --ground:        #070B14;
+  --ground-raised: #0D1421;
+  --ground-panel:  #131C2C;
+  --hairline:      #1E2A3E;
+
+  /* Ink */
+  --ink:        #E6EDF7;
+  --ink-muted:  #8697B0;
+  --ink-faint:  #55647C;
+
+  /* Emission lines, by wavelength */
+  --line-cyber:     #A97BFF;  /* Hg      435.8 nm */
+  --line-materials: #5B8CFF;  /* H-beta  486.1 nm */
+  --line-quantum:   #3DE0C0;  /* O III   500.7 nm */
+  --line-ai:        #FFB020;  /* Na D    589.0 nm */
+  --line-energy:    #FF5A47;  /* H-alpha 656.3 nm */
+
+  /* Type */
+  --display: 'Archivo', 'Helvetica Neue', sans-serif;
+  --body:    'Newsreader', Georgia, serif;
+  --mono:    'IBM Plex Mono', ui-monospace, monospace;
+
+  --step--1: clamp(0.78rem, 0.75rem + 0.15vw, 0.86rem);
+  --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+  --step-1:  clamp(1.3rem, 1.2rem + 0.5vw, 1.6rem);
+  --step-2:  clamp(1.75rem, 1.5rem + 1.2vw, 2.6rem);
+  --step-3:  clamp(2.4rem, 1.9rem + 2.6vw, 4.6rem);
+
+  /* Space */
+  --gap-xs: 0.4rem;
+  --gap-s:  0.8rem;
+  --gap-m:  1.5rem;
+  --gap-l:  3rem;
+  --gap-xl: 6rem;
+
+  --measure: 64ch;
+  --radius: 2px;
+
+  /* Fold-aware: set by JS on the root when a hinge/posture is detected */
+  --pane-left: 1fr;
+  --pane-right: 0fr;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion: 0; }
+}

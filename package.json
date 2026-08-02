@@ -1,0 +1,34 @@
+{
+  "name": "horizonq",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run validate && tsc --noEmit && vite build && npm run budget",
+    "preview": "vite preview",
+    "validate": "node scripts/validate-content.mjs",
+    "budget": "node scripts/check-budget.mjs",
+    "scope": "node scripts/check-scope.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^8.17.10",
+    "front-matter": "^4.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9"
+  }
+}

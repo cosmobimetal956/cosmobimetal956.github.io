@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horizonqltd.com/schema/item/v1",
+  "title": "Horizon Q content item",
+  "description": "One item in the content graph. Items NEVER carry coordinates. Worlds derive geometry from the abstract spatial properties below.",
+  "type": "object",
+  "required": ["schema", "id", "title", "type", "pillars", "status", "spatial"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "item/v1" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Stable slug. Never regenerate; other items reference it."
+    },
+    "title": { "type": "string", "minLength": 3, "maxLength": 140 },
+    "summary": { "type": "string", "maxLength": 400 },
+
+    "type": {
+      "enum": ["article", "observatory", "note", "talk", "pillar"],
+      "description": "observatory = external standalone tool, linked not absorbed."
+    },
+
+    "pillars": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "enum": ["ai", "quantum", "materials", "energy", "cyber"] }
+    },
+
+    "status": { "enum": ["draft", "review", "published", "archived"] },
+
+    "published": { "type": "string", "format": "date" },
+    "updated": { "type": "string", "format": "date" },
+
+    "url": { "type": "string", "format": "uri", "description": "External destination for observatory/talk items." },
+    "poster": { "type": "string", "description": "Path under /public. Lets the world render richly without loading the target." },
+
+    "spatial": {
+      "type": "object",
+      "description": "Abstract properties only. A world maps these to geometry; content must not know whether it is a star or a tower.",
+      "required": ["magnitude", "depth"],
+      "additionalProperties": false,
+      "properties": {
+        "magnitude": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "How much this item should dominate. Orbital -> radius+size. Landscape -> building height."
+        },
+        "depth": {
+          "type": "number", "minimum": 0, "maximum": 1,
+          "description": "0 = entry-level overview, 1 = deep technical. Drives placement away from the arrival point."
+        },
+        "connections": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "IDs of related items. Orbital -> gravitational grouping. Landscape -> street adjacency."
+        },
+        "anchor": {
+          "type": "boolean",
+          "default": false,
+          "description": "Landmark. Every world must place anchors somewhere immediately visible."
+        }
+      }
+    },
+
+    "access": {
+      "enum": ["public", "registered", "paid"],
+      "default": "public",
+      "description": "Reserved. Everything is public today; the build filters on this if that ever changes."
+    },
+    "dataLicence": {
+      "type": "string",
+      "description": "Provenance for aggregated third-party data. Recorded now so it never has to be reconstructed."
+    },
+
+    "locked": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Field names agents must not modify. CI fails any PR that touches one."
+    },
+    "lastHumanEdit": { "type": "string", "format": "date" },
+    "lastAgentEdit": { "type": "string", "format": "date" },
+    "author": { "type": "string", "default": "Stuart Okin" },
+
+    "liveness": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Maintained by the liveness agent for observatory items.",
+      "properties": {
+        "lastChecked": { "type": "string", "format": "date" },
+        "state": { "enum": ["ok", "slow", "broken", "stale"] },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}
