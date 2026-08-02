@@ -46,6 +46,7 @@ export function place(items: Item[]): Placement[] {
 
     return {
       id: item.id,
+      label: item.title,
       position: [
         Math.cos(theta) * radius * Math.cos(inclination),
         Math.sin(inclination) * radius,
